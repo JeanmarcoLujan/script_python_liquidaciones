@@ -22,6 +22,7 @@ def generate_result():
     try:
 
         # Recorremos los archivos XML en el directorio
+        cont = 0
         for filename in os.listdir(xml_directory):
             if filename.endswith(".xml"):
                 filepath = os.path.join(xml_directory, filename)
@@ -54,11 +55,11 @@ def generate_result():
 
                 party_legal_entity1 = root.find(".//cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress", namespaces=namespace1)
                 if party_legal_entity1 is not None:
-                    CountrySubentity = party_legal_entity1.find(".//cbc:Line", namespaces=namespace).text +" "+ party_legal_entity1.find(".//cbc:CountrySubentity", namespaces=namespace).text + "-" + party_legal_entity1.find(".//cbc:CityName", namespaces=namespace).text + "-" + party_legal_entity1.find(".//cbc:District", namespaces=namespace).text
+                    CountrySubentity = ("SIN DIRECCION" if party_legal_entity1.find(".//cbc:Line", namespaces=namespace).text is None else party_legal_entity1.find(".//cbc:Line", namespaces=namespace).text) +" "+ party_legal_entity1.find(".//cbc:CountrySubentity", namespaces=namespace).text + "-" + party_legal_entity1.find(".//cbc:CityName", namespaces=namespace).text  + "-" + party_legal_entity1.find(".//cbc:District", namespaces=namespace).text
 
                 registration_address = root.find(".//cac:DeliveryTerms/cac:DeliveryLocation/cac:Address", namespaces=namespace1)
                 if registration_address is not None:
-                    address_line = registration_address.find(".//cbc:Line", namespaces=namespace).text
+                    address_line = ("NO ESPECIFICADO" if registration_address.find(".//cbc:Line", namespaces=namespace).text is None else registration_address.find(".//cbc:Line", namespaces=namespace).text) 
             
                 tax_inclusive_amount = root.find(".//cac:LegalMonetaryTotal", namespaces=namespace1)
                 if tax_inclusive_amount is not None:
@@ -66,6 +67,7 @@ def generate_result():
 
 
                 atributos.append((ruc_emisor, invoice_id, issue_date, doc_vendedor, registration_name, CountrySubentity ,address_line, amount_value))
+                cont += 1
                 
                 #root = ET.fromstring(xml_data)
                 #print("archivo:", filepath)
@@ -112,6 +114,8 @@ def generate_result():
         #wb.save(excel_filename)
 
         """
+
+        
         directorio = "C:\liquidacion"
         nombre_archivo = "resultado.xlsx"
         ruta_completa = os.path.join(directorio, nombre_archivo)
@@ -132,8 +136,8 @@ def generate_result():
                 worksheet.write(fila+1, columna, dato)
 
         workbook.close()
-
-        print(Fore.GREEN +f"Archivo Excel se ha generado OK.")
+        
+        print(Fore.GREEN +f"Archivo Excel se ha generado OK : {cont} registro procesados")
     
     except Exception as e:
         print(Fore.RED + f" Ha ocurrido un error: {e} ")
